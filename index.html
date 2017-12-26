@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sample</title>
+</head>
+<body>
+<div id="canvas" style="height: inherit; position: relative; overflow: hidden;">
+	<div style="bottom: 0; position: absolute; ">
+		<img src="grass.png" width="489px" height="225px">
+	</div>
+	<div style="bottom: 0; left: 485px; position: absolute; ">
+		<img src="grass.png" width="489px" height="225px">
+	</div>
+	<div style="bottom: 0; left: 970px; position: absolute; ">
+		<img src="grass.png" width="489px" height="225px">
+	</div>
+	<div style="bottom: 0; left: 1050px; position: absolute; ">
+		<img src="grass.png" width="489px" height="225px">
+	</div>
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+	var _main_body = document.body;
+	var canvas = document.getElementById('canvas');
+    var bird_div = null;
+    var crosshair_div = null;
+    var bird = null;
+    var crosshair = null;
+    
+    function Bird(){
+        this.bird_div = document.createElement('div');
+        this.bird_div.id = 'bird-div-' + getRandomNum(0, 1000);
+        this.bird_div.style.position = 'absolute';
+        this.bird_div.style.overflow = 'hidden';
+        this.bird_div.style.zIndex = '-100';
+        this.posX = null;
+        this.posY = null;
+        canvas.appendChild(this.bird_div);
+        this.bird_img = null;
+        this.animate_interval = null;
+        this.fly_interval = null;
+        
+        this.initBird = function(){
+            bird_img = document.createElement('img');
+            this.bird_div.appendChild(bird_img);
+            bird_img.width = '128';
+            bird_img.height = '128';
+//            this.animate(bird_img);
+        }
+        this.animate = function(bird_img, direction){
+            var index = direction == 'LEFT' ? 11 : 1;
+            var inc = true;
+            var limit = index + 8;
+            var incStart = index + 1;
+            this.animate_interval = setInterval(() =>{
+                var image_src = 'Bird/Untitled' + index.toString() + '.png';
+//                console.log(index);
+                bird_img.src = image_src;
+                if(index > limit){
+                    inc = false;
+                }
+                if(index < incStart){
+                    inc = true;
+                }
+                if(inc){
+                    index++;
+                }else{
+                    index--;
+                }
+                // console.log(image_src);
+            }, 10);
+        }
+        this.fly = function(point, angle){
+//    		console.log(point);
+            this.posX = point.x - 64;
+            this.posY = point.y - 64;
+            bird_speed = 10;
+            if(point.x < (window.innerWidth / 2)){
+                console.log('LEFT CALLED ', point.x);
+                console.log('INNER WIDTH HALF', (window.innerWidth / 2));
+                this.animate(bird_img, 'RIGHT');
+            }else{
+                console.log('RIGHT CALLED ', point.y);
+                console.log('INNER WIDTH HALF ', (window.innerWidth / 2));
+                this.animate(bird_img, 'LEFT');
+            }
+            this.bird_div.style.transform = 'translate(' + (point.x - 64) + 'px,' + (point.y - 64) + 'px)';
+            this.fly_interval = setInterval(()=>{
+//                rootX += 1;
+//    			  rootY -= 1;
+//                console.log("ROOT X", rootX);
+//                console.log("ROOT Y", rootY);
+                if((this.posY < (-200)) || (this.posX < (-200)) || (this.posX > (window.innerWidth + 200))){
+                    clearInterval(this.fly_interval);
+                    clearInterval(this.animate_interval);
+                    var old_bird = document.getElementById(this.bird_div.id);
+                    old_bird.remove();
+                    setTimeout(()=>{
+                        delete this;
+                        startGameAnimation();
+                    }, 3000);
+                }
+                this.posX += bird_speed * Math.cos(angle * Math.PI / 180);
+                this.posY += bird_speed * Math.sin(angle * Math.PI / 180);
+                this.bird_div.style.transform = 'translate(' + (this.posX) + 'px,' + (this.posY) + 'px)';
+            }, 30);
+        }
+        
+        this.fadeOutEffect = function(target){
+            var fadeEffect = setInterval(function () {
+                if(!target.style.opacity) {
+                    target.style.opacity = 1;
+                }
+                if(target.style.opacity < 0.1) {
+                    clearInterval(fadeEffect);
+                } else {
+                    target.style.opacity -= 0.1;
+                }
+            }, 50);
+        }
+        
+        this.stopFly = function(){
+            clearInterval(this.fly_interval);
+            clearInterval(this.animate_interval);
+            console.log(this.bird_div.id);
+            var old_bird = document.getElementById(this.bird_div.id);
+            console.log(old_bird);
+            old_bird.style.opacity = 1;
+            this.fadeOutEffect(old_bird);
+            setTimeout(()=>{
+                delete this;
+                startGameAnimation();
+            }, 3000);
+        }
+    }
+
+	function setGameCanvas(){
+		_main_body.style.height = window.innerHeight - 16 + 'px';
+		canvas.style.width = (window.innerWidth - 16) + 'px';
+		// canvas.style.height = window.innerHeight - 16 + 'px';
+		// canvas.style.height = 'inherit';
+        
+        // CREATE CROSSHAIR DIV
+        crosshair_div = document.createElement('div');
+        canvas.appendChild(crosshair_div);
+	    crosshair_div.id = 'crosshair-div';
+        crosshair_div.style.position = 'absolute';
+	    crosshair_div.style.overflow = 'hidden';
+        initCrossHair();
+        
+	}
+    
+    function initCrossHair(){
+        crosshair = document.createElement('img');
+        crosshair_div.appendChild(crosshair);
+        crosshair.src = 'crosshair.png';
+        crosshair.width = '32';
+        crosshair.height = '32';
+    }
+    
+    function startGameAnimation(){
+        bird = new Bird;
+        bird.initBird();
+        var x = getRandomNum(0, window.innerWidth);
+        var y = (window.innerHeight - 50);
+        var point = {'x' : x, 'y' : y};
+        var angle = processAngle(x);
+        console.log("POINT ", point);
+        console.log("Angle ", angle);
+        bird.fly(point, angle);
+    }
+    
+    function getRandomNum(min,max){
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    function processAngle(x_axis_point){
+        if(x_axis_point < (window.innerWidth / 2)){
+            return getRandomNum(270, 360);
+        }else{
+            return getRandomNum(180, 270);
+        }
+    }
+
+	window.onload = function(){
+		setGameCanvas();
+        startGameAnimation();
+	}
+
+	document.onmousemove = function(event){
+		var mouseX = event.clientX;
+		var mouseY = event.clientY;
+		// console.log(mouseX + ' : ' + mouseY);
+		crosshair_div.style.transform = 'translate(' + (mouseX - 32) + 'px,' + (mouseY - 32) + 'px)';
+		canvas.style.cursor = 'none';
+	}
+    
+    function birdIsShot(m, b){
+        if((m.x >= (b.x) && m.x <= (b.x + 64)) && (m.y >= (b.y) && m.y <= (b.y + 64))){
+            return true;
+        }
+        return false;
+	}
+    
+    document.onclick = function(event){
+        var mouseX = event.clientX;
+		var mouseY = event.clientY;
+        console.log(mouseX + ' : ' + mouseY);
+        console.log(bird.posX + ' : ' + bird.posY);
+        var mouse_point = {"x": mouseX, "y": mouseY};
+        var bird_point = {"x": bird.posX, "y": bird.posY};
+        if(birdIsShot(mouse_point, bird_point)){
+            console.log("BIRD HAS BEEN SHOT");
+            bird.stopFly();
+        }
+    }
+</script>
+
+<!-- this.x += this.speed * Math.cos(angle * Math.PI / 180); -->
+<!-- this.y += this.speed * Math.sin(angle * Math.PI / 180); -->
