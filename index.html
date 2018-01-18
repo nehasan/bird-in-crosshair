@@ -22,7 +22,6 @@
 </html>
 
 <script type="text/javascript">
-
 	var _main_body = document.body;
 	var canvas = document.getElementById('canvas');
     var bird_div = null;
@@ -75,8 +74,8 @@
         }
         this.fly = function(point, angle){
 //    		console.log(point);
-            this.posX = point.x - 64;
-            this.posY = point.y - 64;
+            this.posX = point.x;
+            this.posY = point.y;
             bird_speed = 10;
             if(point.x < (window.innerWidth / 2)){
                 console.log('LEFT CALLED ', point.x);
@@ -87,7 +86,7 @@
                 console.log('INNER WIDTH HALF ', (window.innerWidth / 2));
                 this.animate(bird_img, 'LEFT');
             }
-            this.bird_div.style.transform = 'translate(' + (point.x - 64) + 'px,' + (point.y - 64) + 'px)';
+            this.bird_div.style.transform = 'translate(' + (point.x) + 'px,' + (point.y) + 'px)';
             this.fly_interval = setInterval(()=>{
 //                rootX += 1;
 //    			  rootY -= 1;
@@ -116,6 +115,7 @@
                 }
                 if(target.style.opacity < 0.1) {
                     clearInterval(fadeEffect);
+                    target.remove();
                 } else {
                     target.style.opacity -= 0.1;
                 }
@@ -165,7 +165,9 @@
         bird = new Bird;
         bird.initBird();
         var x = getRandomNum(0, window.innerWidth);
+//        var x = window.innerWidth/2;
         var y = (window.innerHeight - 50);
+//        var y = window.innerHeight/2;
         var point = {'x' : x, 'y' : y};
         var angle = processAngle(x);
         console.log("POINT ", point);
@@ -199,21 +201,32 @@
 	}
     
     function birdIsShot(m, b){
-        if((m.x >= (b.x) && m.x <= (b.x + 64)) && (m.y >= (b.y) && m.y <= (b.y + 64))){
+        if((m.x >= (b.x+32) && m.x <= ((b.x + 128)-32)) && (m.y >= (b.y+32) && m.y <= ((b.y + 128)-32))){
+//            console.log("BIRD HAS BEEN SHOT");
+//            console.log('MX:MY', m.x + ' : ' + m.y);
+//            console.log('MX+32:MY+32', parseInt(m.x+32) + ' : ' + parseInt(m.y+32));
+//            console.log('BX:BY', b.x + ' : ' + b.y);
+//            console.log('BX+96:BY+96', parseInt(b.x+96) + ' : ' + parseInt(b.y+96));
+//            console.log('MX(' + m.x +')>=BX('+ b.x +') && MX(' + m.x +')<=BX+96('+ parseInt(b.x+96) +')');
+//            console.log('MY(' + m.y +')>=BY('+ b.y +') && MY(' + m.y +')<=BY+96('+ parseInt(b.y+96) +')');
             return true;
         }
+//        console.log("BIRD NOT SHOT");
+//        console.log('MX:MY', m.x + ' : ' + m.y);
+//        console.log('MX+32:MY+32', parseInt(m.x+32) + ' : ' + parseInt(m.y+32));
+//        console.log('BX:BY', b.x + ' : ' + b.y);
+//        console.log('BX+96:BY+96', parseInt(b.x+96) + ' : ' + parseInt(b.y+96));
+//        console.log('MX(' + m.x +')>=BX('+ b.x +') && MX(' + m.x +')<=BX+96('+ parseInt(b.x+96) +')');
+//        console.log('MY(' + m.y +')>=BY('+ b.y +') && MY(' + m.y +')<=BY+96('+ parseInt(b.y+96) +')');
         return false;
 	}
     
     document.onclick = function(event){
         var mouseX = event.clientX;
 		var mouseY = event.clientY;
-        console.log(mouseX + ' : ' + mouseY);
-        console.log(bird.posX + ' : ' + bird.posY);
         var mouse_point = {"x": mouseX, "y": mouseY};
         var bird_point = {"x": bird.posX, "y": bird.posY};
         if(birdIsShot(mouse_point, bird_point)){
-            console.log("BIRD HAS BEEN SHOT");
             bird.stopFly();
         }
     }
