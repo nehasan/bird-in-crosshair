@@ -5,6 +5,9 @@
 </head>
 <body>
 <div id="canvas" style="height: inherit; position: relative; overflow: hidden;">
+    <div style="position: absolute; font-family: monospace">
+        <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
+    </div>
 	<div style="bottom: 0; position: absolute; ">
 		<img src="grass.png" width="489px" height="225px">
 	</div>
@@ -28,6 +31,7 @@
     var crosshair_div = null;
     var bird = null;
     var crosshair = null;
+    var score = 0;
     
     function Bird(){
         this.bird_div = document.createElement('div');
@@ -76,7 +80,7 @@
 //    		console.log(point);
             this.posX = point.x;
             this.posY = point.y;
-            bird_speed = 10;
+            bird_speed = 20;
             if(point.x < (window.innerWidth / 2)){
                 console.log('LEFT CALLED ', point.x);
                 console.log('INNER WIDTH HALF', (window.innerWidth / 2));
@@ -181,9 +185,9 @@
     
     function processAngle(x_axis_point){
         if(x_axis_point < (window.innerWidth / 2)){
-            return getRandomNum(270, 360);
+            return getRandomNum(280, 360);
         }else{
-            return getRandomNum(180, 270);
+            return getRandomNum(190, 270);
         }
     }
 
@@ -201,7 +205,7 @@
 	}
     
     function birdIsShot(m, b){
-        if((m.x >= (b.x+32) && m.x <= ((b.x + 128)-32)) && (m.y >= (b.y+32) && m.y <= ((b.y + 128)-32))){
+        if((m.x >= (b.x+32) && m.x <= (b.x + 128)) && (m.y >= (b.y+32) && m.y <= (b.y + 128))){
 //            console.log("BIRD HAS BEEN SHOT");
 //            console.log('MX:MY', m.x + ' : ' + m.y);
 //            console.log('MX+32:MY+32', parseInt(m.x+32) + ' : ' + parseInt(m.y+32));
@@ -228,6 +232,8 @@
         var bird_point = {"x": bird.posX, "y": bird.posY};
         if(birdIsShot(mouse_point, bird_point)){
             bird.stopFly();
+            score += 1;
+            document.getElementById('game-score').innerHTML = score;
         }
     }
 </script>
