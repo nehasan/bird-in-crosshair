@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Sample</title>
+	<title>BirdInCrosshair</title>
 </head>
 <body>
-<div id="canvas" style="height: inherit; position: relative; overflow: hidden;">
-    <div style="position: absolute; font-family: monospace">
-        <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
+    <audio type="audio/mpeg" src="audio/bg_sound.mp3" autoplay loop>Browser doesn't support this audio file</audio>
+    <!-- <audio type="audio/mpeg" src="audio/gun_fire.mp3" id="gun-sound">Browser doesn't support this audio file</audio> -->
+    <audio type="audio/mpeg" src="audio/sfx_die.mp3" id="death-sound">Browser doesn't support this audio file</audio>
+    <div id="canvas" style="height: inherit; position: relative; overflow: hidden">
+        <div style="position: absolute; font-family: monospace">
+            <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
+        </div>
+    	<div style="bottom: 0; position: absolute">
+    		<img src="grass.png" width="489px" height="225px">
+    	</div>
+    	<div style="bottom: 0; left: 485px; position: absolute">
+    		<img src="grass.png" width="489px" height="225px">
+    	</div>
+    	<div style="bottom: 0; left: 970px; position: absolute">
+    		<img src="grass.png" width="489px" height="225px">
+    	</div>
+    	<div style="bottom: 0; left: 1050px; position: absolute">
+    		<img src="grass.png" width="489px" height="225px">
+    	</div>
     </div>
-	<div style="bottom: 0; position: absolute; ">
-		<img src="grass.png" width="489px" height="225px">
-	</div>
-	<div style="bottom: 0; left: 485px; position: absolute; ">
-		<img src="grass.png" width="489px" height="225px">
-	</div>
-	<div style="bottom: 0; left: 970px; position: absolute; ">
-		<img src="grass.png" width="489px" height="225px">
-	</div>
-	<div style="bottom: 0; left: 1050px; position: absolute; ">
-		<img src="grass.png" width="489px" height="225px">
-	</div>
-</div>
 </body>
 </html>
 
@@ -224,13 +227,25 @@
 //        console.log('MY(' + m.y +')>=BY('+ b.y +') && MY(' + m.y +')<=BY+96('+ parseInt(b.y+96) +')');
         return false;
 	}
+
+    function gun_bang(){
+        var audio = document.createElement("audio");
+        audio.src = "audio/gun_fire.mp3";
+        audio.addEventListener("ended", function () {
+            document.removeChild(this);
+        }, false);
+        audio.play();
+    }
     
     document.onclick = function(event){
         var mouseX = event.clientX;
 		var mouseY = event.clientY;
         var mouse_point = {"x": mouseX, "y": mouseY};
         var bird_point = {"x": bird.posX, "y": bird.posY};
+        gun_bang();
         if(birdIsShot(mouse_point, bird_point)){
+            var death_sound = document.getElementById("death-sound");
+            death_sound.play();
             bird.stopFly();
             score += 1;
             document.getElementById('game-score').innerHTML = score;
