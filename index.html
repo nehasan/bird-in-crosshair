@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>BirdInCrosshair</title>
+    <meta charset="utf-8"/>
 </head>
 <body>
     <audio type="audio/mpeg" src="audio/bg_sound.mp3" autoplay loop>Browser doesn't support this audio file</audio>
@@ -10,6 +11,9 @@
     <div id="canvas" style="height: inherit; position: relative; overflow: hidden">
         <div style="position: absolute; font-family: monospace">
             <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
+        </div>
+        <div style="position: absolute; font-family: monospace; right: 0; top: 0">
+            <h2>BULLET LEFT:&nbsp;<span id="bullet-limit">50</span></h2>
         </div>
     	<div style="bottom: 0; position: absolute">
     		<img src="images/grass.png" width="489px" height="225px">
@@ -37,6 +41,7 @@
     var dead_birds = [];
     var crosshair = null;
     var score = 0;
+    var bullet_limit = 50;
     
     function Bird(){
         this.bird_div = document.createElement('div');
@@ -180,9 +185,9 @@
     function startGameAnimation(){
         bird = new Bird;
 //        bird.animate();
-        var x = getRandomNum(0, window.innerWidth);
+        var x = getRandomNum(100, (window.innerWidth - 100));
 //        var x = window.innerWidth/2;
-        var y = (window.innerHeight - 50);
+        var y = (window.innerHeight - 100);
 //        var y = window.innerHeight/2;
         var point = {'x' : x, 'y' : y};
         var angle = processAngle(x);
@@ -197,9 +202,9 @@
     
     function processAngle(x_axis_point){
         if(x_axis_point < (window.innerWidth / 2)){
-            return getRandomNum(280, 360);
+            return getRandomNum(271, 340);
         }else{
-            return getRandomNum(190, 270);
+            return getRandomNum(200, 270);
         }
     }
 
@@ -223,32 +228,47 @@
         return false;
 	}
 
-    function gun_bang(){
+    function gunBang(){
         var audio = document.createElement("audio");
         audio.src = "audio/gun_fire.mp3";
-        audio.addEventListener("ended", function () {
-            document.removeChild(this);
-        }, false);
         audio.play();
+        audio.addEventListener("ended", function(e){
+//            console.log(e);
+//            console.log(this);
+//            document.removeChild(this);
+        }, false);
+    }
+    
+    function decreaseBullet(){
+        bullet_limit -= 1;
+        document.getElementById('bullet-limit').innerHTML = bullet_limit;
+    }
+    
+    function setGameScore(){
+        score += 1;
+        document.getElementById('game-score').innerHTML = score;
     }
     
     document.onclick = function(event){
+        console.log(event.which);
         var mouseX = event.clientX;
 		var mouseY = event.clientY;
         var mouse_point = {"x": mouseX, "y": mouseY};
         var bird_point = {"x": bird.posX, "y": bird.posY};
-        gun_bang();
-        if((dead_birds.indexOf(bird.bird_div.id) < 0) && birdIsShot(mouse_point, bird_point)){
-//            for(elm in dead_birds){
-//                console.log(dead_birds[elm]);
-//            }
-//            console.log(bird.bird_div.id);
-            dead_birds.push(bird.bird_div.id);
-            var death_sound = document.getElementById("death-sound");
-            death_sound.play();
-            bird.stopFly();
-            score += 1;
-            document.getElementById('game-score').innerHTML = score;
+        if(event.which == 1 && bullet_limit > 0){
+            decreaseBullet();
+            gunBang();
+            if((dead_birds.indexOf(bird.bird_div.id) < 0) && birdIsShot(mouse_point, bird_point)){
+    //            for(elm in dead_birds){
+    //                console.log(dead_birds[elm]);
+    //            }
+    //            console.log(bird.bird_div.id);
+                dead_birds.push(bird.bird_div.id);
+                var death_sound = document.getElementById("death-sound");
+                death_sound.play();
+                bird.stopFly();
+                setGameScore();
+            }
         }
     }
 </script>
