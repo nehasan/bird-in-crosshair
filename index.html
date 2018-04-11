@@ -13,7 +13,7 @@
             <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
         </div>
         <div style="position: absolute; font-family: monospace; right: 0; top: 0">
-            <h2>BULLET LEFT:&nbsp;<span id="bullet-limit">50</span></h2>
+            <h2>BULLET LEFT:&nbsp;<span id="bullet-limit">20</span></h2>
         </div>
     	<div style="bottom: 0; position: absolute">
     		<img src="images/grass.png" width="489px" height="225px">
@@ -41,7 +41,7 @@
     var dead_birds = [];
     var crosshair = null;
     var score = 0;
-    var bullet_limit = 50;
+    var bullet_limit = 20;
     
     function Bird(){
         this.bird_div = document.createElement('div');
