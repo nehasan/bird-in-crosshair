@@ -10,11 +10,15 @@
     <audio type="audio/mpeg" src="audio/sfx_die.mp3" id="death-sound">Browser doesn't support this audio file</audio>
     <div id="canvas" style="height: inherit; position: relative; overflow: hidden">
         <div style="position: absolute; font-family: monospace">
-            <h2>SCORE:&nbsp;<span id="game-score">0</span></h2>
+            <h2 style="color: #c95a5a">SCORE:&nbsp;<span id="game-score">0</span></h2>
         </div>
         <div style="position: absolute; font-family: monospace; right: 0; top: 0">
-            <h2>BULLET LEFT:&nbsp;<span id="bullet-limit">20</span></h2>
+            <h2 style="color: #c95a5a">BULLET LEFT:&nbsp;<span id="bullet-limit">0</span></h2>
         </div>
+        <div style="position: absolute; right: 480px; top: 200px; width: 400px; height: 80px">
+            <button type="button" id="start-game-btn" style="display: block; width: inherit; height: inherit; font-size: 30px" onclick="startGame()">Start Play</button>
+            <h1 id="game-end-score-board" style="display: none; color: #c95a5a; text-align: center">YOUR SCORE:&nbsp;<span id="game-end-score"></span></h1>
+        </div> 
     	<div style="bottom: 0; position: absolute">
     		<img src="images/grass.png" width="489px" height="225px">
     	</div>
@@ -41,7 +45,7 @@
     var dead_birds = [];
     var crosshair = null;
     var score = 0;
-    var bullet_limit = 20;
+    var bullet_limit = 0;
     
     function Bird(){
         this.bird_div = document.createElement('div');
@@ -110,7 +114,9 @@
                     old_bird.remove();
                     setTimeout(()=>{
                         delete this;
-                        startGameAnimation();
+                        if(bullet_limit > 0){
+                            startGameAnimation();
+                        }
                     }, 3000);
                 }
                 this.posX += bird_speed * Math.cos(angle * Math.PI / 180);
@@ -143,7 +149,9 @@
             this.fadeOutEffect(old_bird);
             setTimeout(()=>{
                 delete this;
-                startGameAnimation();
+                if(bullet_limit > 0){
+                    startGameAnimation();
+                }
             }, 3000);
         }
     }
@@ -210,15 +218,17 @@
 
 	window.onload = function(){
 		setGameCanvas();
-        startGameAnimation();
+//        startGameAnimation();
 	}
 
 	document.onmousemove = function(event){
-		var mouseX = event.clientX;
-		var mouseY = event.clientY;
-		// console.log(mouseX + ' : ' + mouseY);
-		crosshair_div.style.transform = 'translate(' + (mouseX - 32) + 'px,' + (mouseY - 32) + 'px)';
-		canvas.style.cursor = 'none';
+        if(bullet_limit > 0){
+            var mouseX = event.clientX;
+            var mouseY = event.clientY;
+            // console.log(mouseX + ' : ' + mouseY);
+            crosshair_div.style.transform = 'translate(' + (mouseX - 32) + 'px,' + (mouseY - 32) + 'px)';
+            canvas.style.cursor = 'none';
+        }
 	}
     
     function birdIsShot(m, b){
@@ -245,17 +255,25 @@
     }
     
     function setGameScore(){
-        score += 1;
         document.getElementById('game-score').innerHTML = score;
+    }
+    
+    function startGame(){
+        bullet_limit = 21;
+        score = 0;
+        document.getElementById('start-game-btn').style.display = 'none';
+        document.getElementById('game-end-score-board').style.display = 'none';
+        setGameScore();
+        startGameAnimation();
     }
     
     document.onclick = function(event){
         console.log(event.which);
         var mouseX = event.clientX;
 		var mouseY = event.clientY;
-        var mouse_point = {"x": mouseX, "y": mouseY};
-        var bird_point = {"x": bird.posX, "y": bird.posY};
         if(event.which == 1 && bullet_limit > 0){
+            var mouse_point = {"x": mouseX, "y": mouseY};
+            var bird_point = {"x": bird.posX, "y": bird.posY};
             decreaseBullet();
             gunBang();
             if((dead_birds.indexOf(bird.bird_div.id) < 0) && birdIsShot(mouse_point, bird_point)){
@@ -267,7 +285,16 @@
                 var death_sound = document.getElementById("death-sound");
                 death_sound.play();
                 bird.stopFly();
+                score += 1;
                 setGameScore();
+            }
+            if(bullet_limit == 0){
+                document.getElementById('game-end-score-board').style.display = 'block';
+                document.getElementById('game-end-score').innerHTML = score;
+                canvas.style.cursor = 'default';
+                setTimeout(()=>{
+                    document.getElementById('start-game-btn').style.display = 'block';
+                }, 5000);
             }
         }
     }
