@@ -8,6 +8,7 @@ var dead_birds = [];
 var crosshair = null;
 var score = 0;
 var bullet_limit = 0;
+var time_limit = 1;
 
 function Bird(){
     this.bird_div = document.createElement('div');
@@ -46,8 +47,7 @@ function Bird(){
             }else{
                 index--;
             }
-            // console.log(image_src);
-        }, 10);
+        }, 20);
     }
     this.fly = function(point, angle){
 //    		console.log(point);
@@ -76,7 +76,7 @@ function Bird(){
                 old_bird.remove();
                 setTimeout(()=>{
                     delete this;
-                    if(bullet_limit > 0){
+                    if(bullet_limit > 0 && time_limit > 0){
                         startGameAnimation();
                     }
                 }, 3000);
@@ -111,7 +111,7 @@ function Bird(){
         this.fadeOutEffect(old_bird);
         setTimeout(()=>{
             delete this;
-            if(bullet_limit > 0){
+            if(bullet_limit > 0 && time_limit > 0){
                 startGameAnimation();
             }
         }, 3000);
@@ -168,6 +168,24 @@ function startGameAnimation(){
     bird.fly(point, angle);
 }
 
+function startTimer(){
+    var min = 0;
+    var sec = 59;
+    var time_lim_interval = setInterval(function(){
+        document.getElementById('time-limit').innerHTML = min + ':' + (sec < 10 ? '0' + sec : sec);
+        sec -= 1;
+        if(sec == 0){
+            min -= 1;
+            sec = 59;
+            time_limit -= 1;
+        }
+        if(min < 0){
+            endGame();
+            clearInterval(time_lim_interval);
+        }
+    }, 1000);
+}
+
 function getRandomNum(min,max){
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -186,7 +204,7 @@ window.onload = function(){
 }
 
 document.onmousemove = function(event){
-    if(bullet_limit > 0){
+    if(bullet_limit > 0 && time_limit > 0){
         var mouseX = event.clientX;
         var mouseY = event.clientY;
         // console.log(mouseX + ' : ' + mouseY);
@@ -228,14 +246,24 @@ function startGame(){
     document.getElementById('start-game-btn').style.display = 'none';
     document.getElementById('game-end-score-board').style.display = 'none';
     setGameScore();
+    startTimer();
     startGameAnimation();
+}
+
+function endGame(){
+    document.getElementById('game-end-score-board').style.display = 'block';
+    document.getElementById('game-end-score').innerHTML = score;
+    canvas.style.cursor = 'default';
+    setTimeout(()=>{
+        document.getElementById('start-game-btn').style.display = 'block';
+    }, 5000);
 }
 
 document.onclick = function(event){
     console.log(event.which);
     var mouseX = event.clientX;
     var mouseY = event.clientY;
-    if(event.which == 1 && bullet_limit > 0){
+    if(event.which == 1 && bullet_limit > 0 && time_limit > 0){
         var mouse_point = {"x": mouseX, "y": mouseY};
         var bird_point = {"x": bird.posX, "y": bird.posY};
         decreaseBullet();
@@ -252,13 +280,8 @@ document.onclick = function(event){
             score += 1;
             setGameScore();
         }
-        if(bullet_limit == 0){
-            document.getElementById('game-end-score-board').style.display = 'block';
-            document.getElementById('game-end-score').innerHTML = score;
-            canvas.style.cursor = 'default';
-            setTimeout(()=>{
-                document.getElementById('start-game-btn').style.display = 'block';
-            }, 5000);
+        if(bullet_limit == 0 || time_limit == 0){
+            endGame();
         }
     }
 }
