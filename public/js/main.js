@@ -76,7 +76,7 @@ function Bird(){
                 old_bird.remove();
                 setTimeout(()=>{
                     delete this;
-                    if(bullet_limit > 0 && time_limit > 0){
+                    if(bullet_limit > 0 && time_limit >= 0){
                         startGameAnimation();
                     }
                 }, 3000);
@@ -111,7 +111,7 @@ function Bird(){
         this.fadeOutEffect(old_bird);
         setTimeout(()=>{
             delete this;
-            if(bullet_limit > 0 && time_limit > 0){
+            if(bullet_limit > 0 && time_limit >= 0){
                 startGameAnimation();
             }
         }, 3000);
@@ -169,8 +169,8 @@ function startGameAnimation(){
 }
 
 function startTimer(){
-    var min = 0;
-    var sec = 59;
+    var min = 1;
+    var sec = 30;
     var time_lim_interval = setInterval(function(){
         document.getElementById('time-limit').innerHTML = min + ':' + (sec < 10 ? '0' + sec : sec);
         sec -= 1;
@@ -204,7 +204,7 @@ window.onload = function(){
 }
 
 document.onmousemove = function(event){
-    if(bullet_limit > 0 && time_limit > 0){
+    if(bullet_limit > 0 && time_limit >= 0){
         var mouseX = event.clientX;
         var mouseY = event.clientY;
         // console.log(mouseX + ' : ' + mouseY);
@@ -263,7 +263,7 @@ document.onclick = function(event){
     console.log(event.which);
     var mouseX = event.clientX;
     var mouseY = event.clientY;
-    if(event.which == 1 && bullet_limit > 0 && time_limit > 0){
+    if(event.which == 1 && bullet_limit > 0 && time_limit >= 0){
         var mouse_point = {"x": mouseX, "y": mouseY};
         var bird_point = {"x": bird.posX, "y": bird.posY};
         decreaseBullet();
@@ -280,7 +280,7 @@ document.onclick = function(event){
             score += 1;
             setGameScore();
         }
-        if(bullet_limit == 0 || time_limit == 0){
+        if(bullet_limit == 0 || time_limit < 0){
             endGame();
         }
     }
